@@ -418,12 +418,21 @@
       // ── Input ──
       this.input.keyboard.on('keydown-SPACE', () => this._flap());
       this.input.on('pointerdown', () => this._flap());
+
+      // ── Debug: toggle collision overlay with 'D' key ──
+      this.debugCollisions = false;
+      this.debugGraphics = this.add.graphics().setDepth(50);
+      this.debugGraphics.setScrollFactor(0);
+      this.input.keyboard.on('keydown-D', () => {
+        this.debugCollisions = !this.debugCollisions;
+        if (!this.debugCollisions) this.debugGraphics.clear();
+      });
     }
 
     update(time, delta) {
       if (this.isDead) return;
 
-      const dt = delta / 1000;
+      const dt = Math.min(delta / 1000, 0.05); // cap at 50ms to prevent physics spikes
 
       if (this.isStarted) {
         // Apply velocity manually for fine control
@@ -463,16 +472,16 @@
           }
         });
 
-        // Manual bird-pipe AABB collision
+        // Manual bird-pipe AABB collision (every frame — no _chk guard)
         const bhx = 14, bhy = 11;
+        const bx = this.birdContainer.x, by = this.birdContainer.y;
         this.pipes.getChildren().forEach(pipe => {
-          if (pipe._chk) return;
-          pipe._chk = true;
-          const pw = pipe.width || PIPE_WIDTH;
-          const ph = pipe.height || 200;
-          const bx = this.birdContainer.x, by = this.birdContainer.y;
-          if (bx - bhx < pipe.x + pw && bx + bhx > pipe.x &&
-              by - bhy < pipe.y + ph && by + bhy > pipe.y) {
+          // Rect center at (pipe.x, pipe.y), dimensions pipe.width × pipe.height
+          const hw = pipe.width / 2;
+          const hh = pipe.height / 2;
+          // Check AABB: bird box vs pipe rect (center-origin)
+          if (bx - bhx < pipe.x + hw && bx + bhx > pipe.x - hw &&
+              by - bhy < pipe.y + hh && by + bhy > pipe.y - hh) {
             this._die();
           }
         });
@@ -482,10 +491,9 @@
           this._die();
         }
 
-        // Check ceiling
+        // Check ceiling — clamp position but preserve velocity so flaps aren't wasted
         if (this.birdContainer.y - 11 < 0) {
           this.birdContainer.y = 11;
-          this.birdVelocity = 0;
         }
 
         // Remove off-screen pipes
@@ -494,6 +502,47 @@
             pipe.destroy();
           }
         });
+
+        // ── Debug: render collision overlay ──
+        if (this.debugCollisions) {
+          const dg = this.debugGraphics;
+          dg.clear();
+
+          // Bird collision box (yellow)
+          dg.lineStyle(2, 0xffff00, 0.8);
+          dg.strokeRect(
+            this.birdContainer.x - bhx,
+            this.birdContainer.y - bhy,
+            bhx * 2,
+            bhy * 2
+          );
+
+          // Pipe collision boxes (red) — rectangles are center-origin
+          this.pipes.getChildren().forEach(pipe => {
+            dg.lineStyle(1, 0xff0000, 0.7);
+            dg.strokeRect(
+              pipe.x - pipe.width / 2,
+              pipe.y - pipe.height / 2,
+              pipe.width,
+              pipe.height
+            );
+            dg.fillStyle(0xff0000, 0.15);
+            dg.fillRect(
+              pipe.x - pipe.width / 2,
+              pipe.y - pipe.height / 2,
+              pipe.width,
+              pipe.height
+            );
+          });
+
+          // Ground collision zone (orange)
+          dg.lineStyle(2, 0xff8800, 0.7);
+          dg.strokeRect(0, H - GROUND_HEIGHT, W, GROUND_HEIGHT);
+
+          // Ceiling boundary (cyan)
+          dg.lineStyle(1, 0x00ffff, 0.4);
+          dg.strokeRect(0, 0, W, 11);
+        }
       }
 
       // Ground scroll
@@ -593,26 +642,35 @@
       const topHeight = Phaser.Math.Between(minY, maxY);
       const bottomY = topHeight + PIPE_GAP;
 
-      // Top pipe (no physics — manual collision)
+      // Top pipe graphic (visual only — NOT added to collision group)
       const topPipe = this.add.graphics();
       this._drawPipeShape(topPipe, 0, 0, topHeight, false);
       topPipe.setPosition(W + 10, 0);
-      this.pipes.add(topPipe);
 
-      // Top pipe cap collision visual (invisible, used for manual AABB)
-      const topCap = this.add.rectangle(W + 10, topHeight, PIPE_WIDTH + 12, 22);
+      // Top pipe body collision rect (invisible)
+      const topBody = this.add.rectangle(W + 10, topHeight / 2, PIPE_WIDTH, topHeight);
+      topBody.visible = false;
+      this.pipes.add(topBody);
+
+      // Top pipe cap collision rect (invisible)
+      const topCap = this.add.rectangle(W + 10, topHeight - 11, PIPE_WIDTH + 12, 22);
       topCap.visible = false;
       this.pipes.add(topCap);
 
-      // Bottom pipe (no physics — manual collision)
+      // Bottom pipe graphic (visual only — NOT added to collision group)
       const bottomHeight = H - GROUND_HEIGHT - bottomY;
       const bottomPipe = this.add.graphics();
-      this._drawPipeShape(bottomPipe, 0, 0, bottomHeight, false);
+      // flipped=true: cap drawn at y=0 (local) → world y=bottomY (near gap)
+      this._drawPipeShape(bottomPipe, 0, 0, bottomHeight, true);
       bottomPipe.setPosition(W + 10, bottomY);
-      this.pipes.add(bottomPipe);
 
-      // Bottom pipe cap (invisible, for manual AABB)
-      const bottomCap = this.add.rectangle(W + 10, bottomY, PIPE_WIDTH + 12, 22);
+      // Bottom pipe body collision rect (invisible)
+      const bottomBody = this.add.rectangle(W + 10, bottomY + bottomHeight / 2, PIPE_WIDTH, bottomHeight);
+      bottomBody.visible = false;
+      this.pipes.add(bottomBody);
+
+      // Bottom pipe cap collision rect (invisible)
+      const bottomCap = this.add.rectangle(W + 10, bottomY + 11, PIPE_WIDTH + 12, 22);
       bottomCap.visible = false;
       this.pipes.add(bottomCap);
 
@@ -1049,5 +1107,6 @@
     scene: [PreloadScene, MenuScene, GameScene, GameOverScene]
   };
 
-  new Phaser.Game(config);
+  const game = new Phaser.Game(config);
+  window.game = game; // expose for test/debug access
 })();

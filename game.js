@@ -376,14 +376,9 @@
 
       // ── Ground ──
       this._buildGround();
-      this.groundBody = this.physics.add.staticImage(0, 0, null);
-      this.groundBody.setDisplaySize(W, GROUND_HEIGHT);
-      this.groundBody.refreshBody();
-      // Actually use a static physics body for the ground
-      this.groundBody = this.physics.add.staticBody(0, H - GROUND_HEIGHT / 2, W, GROUND_HEIGHT);
-      this.groundBody.setSize(W, GROUND_HEIGHT);
-      this.groundBody.setPosition(W / 2, H - GROUND_HEIGHT / 2);
-      this.physics.world.staticBodies.add(this.groundBody);
+      const groundRect = this.add.rectangle(W / 2, H - GROUND_HEIGHT / 2, W, GROUND_HEIGHT);
+      groundRect.visible = false;
+      this.physics.add.existing(groundRect, true);
 
       // ── Bird ──
       this.birdContainer = this.add.container(BIRD_START_X, BIRD_START_Y);

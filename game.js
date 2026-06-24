@@ -499,7 +499,7 @@
       if (this.groundGraphics) {
         this.groundGraphics.forEach((g, i) => {
           if (this.isStarted) {
-            g.x -= PIPE_SPEED * dt;
+            g.x += PIPE_SPEED * dt;
             if (g.x <= -W) g.x += W;
           }
         });

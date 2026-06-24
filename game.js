@@ -646,6 +646,7 @@
       const topPipe = this.add.graphics();
       this._drawPipeShape(topPipe, 0, 0, topHeight, false);
       topPipe.setPosition(W + 10, 0);
+      this.pipes.add(topPipe);
 
       // Top pipe body collision rect (invisible)
       const topBody = this.add.rectangle(W + 10, topHeight / 2, PIPE_WIDTH, topHeight);
@@ -663,6 +664,7 @@
       // flipped=true: cap drawn at y=0 (local) → world y=bottomY (near gap)
       this._drawPipeShape(bottomPipe, 0, 0, bottomHeight, true);
       bottomPipe.setPosition(W + 10, bottomY);
+      this.pipes.add(bottomPipe);
 
       // Bottom pipe body collision rect (invisible)
       const bottomBody = this.add.rectangle(W + 10, bottomY + bottomHeight / 2, PIPE_WIDTH, bottomHeight);

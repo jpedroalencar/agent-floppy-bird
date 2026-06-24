@@ -454,9 +454,10 @@
           this.pipeTimer = 0;
         }
 
-        // Move pipes (no physics bodies — direct positioning)
+        // Move pipes — move game object position (renders visual) and sync body
         this.pipes.getChildren().forEach(pipe => {
           pipe.x += PIPE_SPEED * dt;
+          if (pipe.body) pipe.body.updateFromGameObject();
         });
 
         this.scoreZones.getChildren().forEach(zone => {
@@ -646,6 +647,7 @@
       const topPipe = this.add.graphics();
       this._drawPipeShape(topPipe, 0, 0, topHeight, false);
       topPipe.setPosition(W + 10, 0);
+      this.physics.add.existing(topPipe, false);
       this.pipes.add(topPipe);
 
       // Top pipe body collision rect (invisible)
@@ -664,6 +666,7 @@
       // flipped=true: cap drawn at y=0 (local) → world y=bottomY (near gap)
       this._drawPipeShape(bottomPipe, 0, 0, bottomHeight, true);
       bottomPipe.setPosition(W + 10, bottomY);
+      this.physics.add.existing(bottomPipe, false);
       this.pipes.add(bottomPipe);
 
       // Bottom pipe body collision rect (invisible)

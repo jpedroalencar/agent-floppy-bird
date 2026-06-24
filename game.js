@@ -51,8 +51,8 @@
   // ─── Constants ─────────────────────────────────────────────────────────────
   const W = 400;
   const H = 600;
-  const GRAVITY = 1200;
-  const FLAP_VELOCITY = -380;
+  const GRAVITY = 1000;
+  const FLAP_VELOCITY = -420;
   const PIPE_SPEED = -200;
   const PIPE_SPAWN_INTERVAL = 1500;
   const PIPE_GAP = 170;

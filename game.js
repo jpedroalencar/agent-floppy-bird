@@ -55,7 +55,7 @@
   const FLAP_VELOCITY = -420;
   const PIPE_SPEED = -200;
   const PIPE_SPAWN_INTERVAL = 1500;
-  const PIPE_GAP = 170;
+  const PIPE_GAP = 130;
   const PIPE_WIDTH = 56;
   const GROUND_HEIGHT = 80;
   const BIRD_START_X = 100;

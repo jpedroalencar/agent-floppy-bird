@@ -408,7 +408,7 @@
 
       // ── Groups ──
       this.pipes = this.physics.add.group();
-      this.scoreZones = this.physics.add.group();
+      this.scoreZones = this.add.group();
 
       // ── Ground ──
       this._buildGround();
@@ -652,8 +652,6 @@
       if (this.isDead) return;
       this.isDead = true;
       SoundEngine.hit();
-      this.physics.world.removeCollider(this.pipeCollider); // Assuming a collider for pipes
-      this.physics.world.removeCollider(this.groundCollider); // Assuming a collider for ground
 
       this.tweens.add({
         targets: this.birdContainer,
@@ -676,20 +674,26 @@
       const bottomPipeHeight = H - GROUND_HEIGHT - PIPE_GAP - topPipeHeight;
 
       // Top pipe
-      const topPipe = this.pipes.create(W + PIPE_WIDTH / 2, topPipeHeight / 2, null).setImmovable(true);
-      topPipe.body.setSize(PIPE_WIDTH, topPipeHeight); // Set physics body size
-      this._drawPipeShape(topPipe, 0, 0, topPipeHeight, false); // Draw with correct dimensions
+      const topPipe = this.add.graphics();
+      this._drawPipeShape(topPipe, 0, 0, topPipeHeight, false);
+      this.physics.add.existing(topPipe);
+      topPipe.body.setImmovable(true);
+      topPipe.body.setSize(PIPE_WIDTH, topPipeHeight);
+      this.pipes.add(topPipe);
 
       // Bottom pipe
       const bottomPipeY = H - GROUND_HEIGHT - bottomPipeHeight / 2;
-      const bottomPipe = this.pipes.create(W + PIPE_WIDTH / 2, bottomPipeY, null).setImmovable(true);
-      bottomPipe.body.setSize(PIPE_WIDTH, bottomPipeHeight); // Set physics body size
-      this._drawPipeShape(bottomPipe, 0, 0, bottomPipeHeight, true); // Draw with correct dimensions
+      const bottomPipe = this.add.graphics();
+      this._drawPipeShape(bottomPipe, 0, 0, bottomPipeHeight, true);
+      this.physics.add.existing(bottomPipe);
+      bottomPipe.body.setImmovable(true);
+      bottomPipe.body.setSize(PIPE_WIDTH, bottomPipeHeight);
+      this.pipes.add(bottomPipe);
 
-      // Score zone - positioned at the gap between pipes for precise scoring
-      const scoreZoneX = W + PIPE_WIDTH; // Position just past the pipe
-      const scoreZone = this.scoreZones.create(scoreZoneX, H / 2, null).setVisible(false).setSize(10, H);
+      // Score zone
+      const scoreZone = this.add.rectangle(W + PIPE_WIDTH, H / 2, 10, H, 0xffffff, 0);
       scoreZone.scored = false;
+      this.scoreZones.add(scoreZone);
     }
 
     _drawHills() {

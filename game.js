@@ -552,9 +552,16 @@
           if (this.isStarted) {
             // move left (negative speed)
             g.x += PIPE_SPEED * dt;
-            // robust wrap: keep x in range [-W, 0) using modulo 2*W
-            const wrap = 2 * W;
-            g.x = ((g.x % wrap) + wrap) % wrap - W;
+            // If this ground segment has completely moved off-screen left,
+            // reposition it to the right of the farthest segment.
+            if (g.x + W <= 0) {
+                // find the rightmost x among all ground graphics
+                let maxX = -Infinity;
+                for (const gg of this.groundGraphics) {
+                    if (gg.x > maxX) maxX = gg.x;
+                }
+                g.x = maxX + W;
+            }
           }
         });
       }

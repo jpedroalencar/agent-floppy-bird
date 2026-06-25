@@ -513,9 +513,9 @@
         const bhx = 14, bhy = 11;
         const bx = this.birdContainer.x, by = this.birdContainer.y;
         this.pipes.getChildren().forEach(pipe => {
-          // Rect center at (pipe.x, pipe.y), dimensions pipe.width × pipe.height
-          const hw = pipe.width / 2;
-          const hh = pipe.height / 2;
+          // Rect center at (pipe.x, pipe.y), body has the actual dimensions
+          const hw = pipe.body.width / 2;
+          const hh = pipe.body.height / 2;
           // Check AABB: bird box vs pipe rect (center-origin)
           if (bx - bhx < pipe.x + hw && bx + bhx > pipe.x - hw &&
               by - bhy < pipe.y + hh && by + bhy > pipe.y - hh) {
@@ -579,21 +579,21 @@
           bhy * 2
         );
 
-        // Pipe collision boxes (red) — rectangles are center-origin
+        // Pipe collision boxes (red) — body has the actual dimensions
         this.pipes.getChildren().forEach(pipe => {
           dg.lineStyle(1, 0xff0000, 0.7);
           dg.strokeRect(
-            pipe.x - pipe.width / 2,
-            pipe.y - pipe.height / 2,
-            pipe.width,
-            pipe.height
+            pipe.x - pipe.body.width / 2,
+            pipe.y - pipe.body.height / 2,
+            pipe.body.width,
+            pipe.body.height
           );
           dg.fillStyle(0xff0000, 0.15);
           dg.fillRect(
-            pipe.x - pipe.width / 2,
-            pipe.y - pipe.height / 2,
-            pipe.width,
-            pipe.height
+            pipe.x - pipe.body.width / 2,
+            pipe.y - pipe.body.height / 2,
+            pipe.body.width,
+            pipe.body.height
           );
         });
 

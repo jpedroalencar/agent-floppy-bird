@@ -670,28 +670,34 @@
     }
 
     _spawnPipePair() {
-      const topPipeHeight = Phaser.Math.Between(80, H - GROUND_HEIGHT - PIPE_GAP - 80);
-      const bottomPipeHeight = H - GROUND_HEIGHT - PIPE_GAP - topPipeHeight;
+          const topPipeHeight = Phaser.Math.Between(80, H - GROUND_HEIGHT - PIPE_GAP - 80);
+          const bottomPipeHeight = H - GROUND_HEIGHT - PIPE_GAP - topPipeHeight;
+          const spawnX = W + PIPE_WIDTH + 10; // start just off-screen right
 
-      // Top pipe
-      const topPipe = this.add.graphics();
-      this._drawPipeShape(topPipe, 0, 0, topPipeHeight, false);
-      this.physics.add.existing(topPipe);
-      topPipe.body.setImmovable(true);
-      topPipe.body.setSize(PIPE_WIDTH, topPipeHeight);
-      this.pipes.add(topPipe);
+          // Top pipe (graphics drawn at local origin, body centered on spawn position)
+          const topPipe = this.add.graphics();
+          this._drawPipeShape(topPipe, 0, 0, topPipeHeight, false);
+          topPipe.x = spawnX;
+          topPipe.y = topPipeHeight / 2;
+          this.physics.add.existing(topPipe);
+          topPipe.body.setImmovable(true);
+          topPipe.body.setSize(PIPE_WIDTH, topPipeHeight);
+          topPipe.body.updateFromGameObject();
+          this.pipes.add(topPipe);
 
-      // Bottom pipe
-      const bottomPipeY = H - GROUND_HEIGHT - bottomPipeHeight / 2;
-      const bottomPipe = this.add.graphics();
-      this._drawPipeShape(bottomPipe, 0, 0, bottomPipeHeight, true);
-      this.physics.add.existing(bottomPipe);
-      bottomPipe.body.setImmovable(true);
-      bottomPipe.body.setSize(PIPE_WIDTH, bottomPipeHeight);
-      this.pipes.add(bottomPipe);
+          // Bottom pipe
+          const bottomPipe = this.add.graphics();
+          this._drawPipeShape(bottomPipe, 0, 0, bottomPipeHeight, true);
+          bottomPipe.x = spawnX;
+          bottomPipe.y = H - GROUND_HEIGHT - bottomPipeHeight / 2;
+          this.physics.add.existing(bottomPipe);
+          bottomPipe.body.setImmovable(true);
+          bottomPipe.body.setSize(PIPE_WIDTH, bottomPipeHeight);
+          bottomPipe.body.updateFromGameObject();
+          this.pipes.add(bottomPipe);
 
-      // Score zone
-      const scoreZone = this.add.rectangle(W + PIPE_WIDTH, H / 2, 10, H, 0xffffff, 0);
+      // Score zone – positioned just past the pipes
+      const scoreZone = this.add.rectangle(W + PIPE_WIDTH * 1.5, H / 2, 10, H, 0xffffff, 0);
       scoreZone.scored = false;
       this.scoreZones.add(scoreZone);
     }

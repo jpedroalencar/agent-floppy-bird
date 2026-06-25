@@ -550,8 +550,11 @@
       if (this.groundGraphics) {
         this.groundGraphics.forEach((g, i) => {
           if (this.isStarted) {
+            // move left (negative speed)
             g.x += PIPE_SPEED * dt;
-            if (g.x <= -W) g.x += W;
+            // robust wrap: keep x in range [-W, 0) using modulo 2*W
+            const wrap = 2 * W;
+            g.x = ((g.x % wrap) + wrap) % wrap - W;
           }
         });
       }

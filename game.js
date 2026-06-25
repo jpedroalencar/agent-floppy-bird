@@ -467,6 +467,7 @@
 
     update(time, delta) {
       if (this.isDead) return;
+      console.log('GameScene update:', time, 'started:', this.isStarted, 'y:', this.birdContainer.y.toFixed(1));
 
       const dt = Math.min(delta / 1000, 0.05); // cap at 50ms to prevent physics spikes
 
@@ -608,6 +609,7 @@
     }
 
     _flap() {
+      console.log('_flap called, isDead:', this.isDead, 'isStarted:', this.isStarted);
       if (this.isDead) return;
 
       if (!this.isStarted) {
@@ -615,6 +617,7 @@
         this.instructionText.destroy();
         this.pipeTimer = PIPE_SPAWN_INTERVAL - 800;
         SoundEngine.swoosh();
+        console.log('_flap: game started');
       }
 
       this.birdVelocity = FLAP_VELOCITY;

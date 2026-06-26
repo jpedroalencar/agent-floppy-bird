@@ -419,7 +419,6 @@
 
       // ── Groups ──
       this.pipes = this.physics.add.group();
-      this.scoreZones = this.add.group();
 
       // ── Ground ──
       this._buildGround();
@@ -507,15 +506,14 @@
           if (pipe.body) pipe.body.updateFromGameObject();
         });
 
-        this.scoreZones.getChildren().forEach(zone => {
-          zone.x += PIPE_SPEED * dt;
-          if (zone.x < -50) zone.destroy();
-        });
-
-        // Check score zones
-        this.scoreZones.getChildren().forEach(zone => {
-          if (!zone.scored && this.birdContainer.x > zone.x) {
-            zone.scored = true;
+        // Check score — score when pipe pair's right edge passes bird's left edge
+        const birdLeftX = this.birdContainer.x - 14;
+        // Track scored pairs via a flag on the pair (top pipe acts as the flag-bearer)
+        this.pipes.getChildren().forEach(pipe => {
+          // Only check the top pipe (y position < H/2) for each pair
+          if (pipe.body.y + pipe.body.height <= H / 2 && !pipe._scored &&
+              pipe.body.x + pipe.body.width < birdLeftX) {
+            pipe._scored = true;
             this._addScore();
           }
         });
@@ -663,22 +661,9 @@
     _die() {
       if (this.isDead) return;
       this.isDead = true;
-      SoundEngine.hit();
 
-      this.tweens.add({
-        targets: this.birdContainer,
-        y: H - GROUND_HEIGHT - 10, // Drop to ground
-        angle: 90,
-        duration: 300,
-        ease: 'Quad.easeIn',
-        onComplete: () => {
-          SoundEngine.swoosh();
-          this.cameras.main.fadeOut(500, 0, 0, 0);
-          this.cameras.main.once('camerafadeoutcomplete', () => {
-            this.scene.start('GameOver', { score: this.score });
-          });
-        }
-      });
+      // Switch directly to GameOver — no death animation to avoid timing issues
+      this.scene.start('GameOver', { score: this.score });
     }
 
     _spawnPipePair() {
@@ -709,11 +694,6 @@
       bottomPipe.body.setSize(PIPE_WIDTH, bottomPipeHeight);
       bottomPipe.body.updateFromGameObject();
       this.pipes.add(bottomPipe);
-
-      // Score zone – positioned ahead of the pipe so bird scores before collision
-      const scoreZone = this.add.rectangle(spawnX + PIPE_WIDTH + 20, H / 2, 10, H, 0xffffff, 0);
-      scoreZone.scored = false;
-      this.scoreZones.add(scoreZone);
     }
 
     _drawHills() {

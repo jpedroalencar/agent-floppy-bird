@@ -51,11 +51,11 @@
   // ─── Constants ─────────────────────────────────────────────────────────────
   const W = 400;
   const H = 600;
-  const GRAVITY = 900; // Match flappybird.io gravity
-  const FLAP_VELOCITY = -320; // Match flappybird.io flap strength
-  const PIPE_SPEED = -50; // Match flappybird.io speed
-  const PIPE_SPAWN_INTERVAL = 1500; // Faster pipe spawning
-  const PIPE_GAP = 100; // Narrower gap like flappybird.io
+  const GRAVITY = 950;
+  const FLAP_VELOCITY = -360;
+  const PIPE_SPEED = -140;
+  const PIPE_SPAWN_INTERVAL = 1500;
+  const PIPE_GAP = 120;
   const PIPE_WIDTH = 56;
   const GROUND_HEIGHT = 80;
   const BIRD_START_X = 80; // Start position like flappybird.io
@@ -114,12 +114,12 @@
     g.fillStyle(COLORS.pipeEdge, 1);
     g.fillRect(x, flipped ? 0 : bottom - height, 4, height);
     g.fillRect(x + PIPE_WIDTH - 4, flipped ? 0 : bottom - height, 4, height);
-    // Cap
+    // Cap — flipped pipes have cap at y=0 (gap end), non-flipped at bottom (gap end)
     g.fillStyle(COLORS.pipeCap, 1);
-    g.fillRect(x - capExtra, flipped ? height : bottom - capH, PIPE_WIDTH + capExtra * 2, capH);
+    g.fillRect(x - capExtra, flipped ? 0 : bottom - capH, PIPE_WIDTH + capExtra * 2, capH);
     // Cap edge
     g.lineStyle(2, COLORS.pipeCapEdge);
-    g.strokeRect(x - capExtra, flipped ? height : bottom - capH, PIPE_WIDTH + capExtra * 2, capH);
+    g.strokeRect(x - capExtra, flipped ? 0 : bottom - capH, PIPE_WIDTH + capExtra * 2, capH);
     // Highlight
     g.fillStyle(0xffffff, 0.12);
     g.fillRect(x + 6, flipped ? 0 : bottom - height, 8, height);
@@ -517,12 +517,11 @@
         const bhx = 14, bhy = 11;
         const bx = this.birdContainer.x, by = this.birdContainer.y;
         this.pipes.getChildren().forEach(pipe => {
-          // Pipe bodies are top-left origin (Graphics + Arcade physics)
-          // Bird body is center-origin (container)
-          const pLeft = pipe.x;
-          const pRight = pipe.x + pipe.body.width;
-          const pTop = pipe.y;
-          const pBottom = pipe.y + pipe.body.height;
+          // Use body position (accounts for any offset) for top-left origin AABB
+          const pLeft = pipe.body.x;
+          const pRight = pipe.body.x + pipe.body.width;
+          const pTop = pipe.body.y;
+          const pBottom = pipe.body.y + pipe.body.height;
           if (bx - bhx < pRight && bx + bhx > pLeft &&
               by - bhy < pBottom && by + bhy > pTop) {
             this._die();
@@ -585,19 +584,19 @@
           bhy * 2
         );
 
-        // Pipe collision boxes (red) — body has the actual dimensions (top-left origin)
+        // Pipe collision boxes (red) — use body position (top-left origin)
         this.pipes.getChildren().forEach(pipe => {
           dg.lineStyle(1, 0xff0000, 0.7);
           dg.strokeRect(
-            pipe.x,
-            pipe.y,
+            pipe.body.x,
+            pipe.body.y,
             pipe.body.width,
             pipe.body.height
           );
           dg.fillStyle(0xff0000, 0.15);
           dg.fillRect(
-            pipe.x,
-            pipe.y,
+            pipe.body.x,
+            pipe.body.y,
             pipe.body.width,
             pipe.body.height
           );
@@ -676,31 +675,33 @@
     }
 
     _spawnPipePair() {
-          const topPipeHeight = Phaser.Math.Between(80, H - GROUND_HEIGHT - PIPE_GAP - 80);
-          const bottomPipeHeight = H - GROUND_HEIGHT - PIPE_GAP - topPipeHeight;
-          const spawnX = W + PIPE_WIDTH + 10; // start just off-screen right
+      const topPipeHeight = Phaser.Math.Between(80, H - GROUND_HEIGHT - PIPE_GAP - 80);
+      const bottomPipeHeight = H - GROUND_HEIGHT - PIPE_GAP - topPipeHeight;
+      const spawnX = W + PIPE_WIDTH + 10;
 
-          // Top pipe (graphics drawn at local origin, body centered on spawn position)
-          const topPipe = this.add.graphics();
-          drawPipeShape(topPipe, 0, 0, topPipeHeight, false);
-          topPipe.x = spawnX;
-          topPipe.y = topPipeHeight / 2;
-          this.physics.add.existing(topPipe);
-          topPipe.body.setImmovable(true);
-          topPipe.body.setSize(PIPE_WIDTH, topPipeHeight);
-          topPipe.body.updateFromGameObject();
-          this.pipes.add(topPipe);
+      // Top pipe — draw from y=0 down to y=topPipeHeight
+      const topPipe = this.add.graphics();
+      drawPipeShape(topPipe, 0, topPipeHeight, topPipeHeight, false);
+      topPipe.x = spawnX;
+      // topPipe.y = 0 (default — body matches graphics)
+      this.physics.add.existing(topPipe);
+      topPipe.body.setImmovable(true);
+      topPipe.body.setSize(PIPE_WIDTH, topPipeHeight);
+      topPipe.body.updateFromGameObject();
+      this.pipes.add(topPipe);
 
-          // Bottom pipe
-          const bottomPipe = this.add.graphics();
-          drawPipeShape(bottomPipe, 0, 0, bottomPipeHeight, true);
-          bottomPipe.x = spawnX;
-          bottomPipe.y = H - GROUND_HEIGHT - bottomPipeHeight / 2;
-          this.physics.add.existing(bottomPipe);
-          bottomPipe.body.setImmovable(true);
-          bottomPipe.body.setSize(PIPE_WIDTH, bottomPipeHeight);
-          bottomPipe.body.updateFromGameObject();
-          this.pipes.add(bottomPipe);
+      // Bottom pipe — draw from y=0 (gap end) down to y=bottomPipeHeight (ground)
+      const bottomPipe = this.add.graphics();
+      drawPipeShape(bottomPipe, 0, 0, bottomPipeHeight, true);
+      bottomPipe.x = spawnX;
+      // Position so pipe top (y=0 local) is at gap bottom
+      const gapBottom = topPipeHeight + PIPE_GAP;
+      bottomPipe.y = gapBottom;
+      this.physics.add.existing(bottomPipe);
+      bottomPipe.body.setImmovable(true);
+      bottomPipe.body.setSize(PIPE_WIDTH, bottomPipeHeight);
+      bottomPipe.body.updateFromGameObject();
+      this.pipes.add(bottomPipe);
 
       // Score zone – positioned just past the pipes
       const scoreZone = this.add.rectangle(W + PIPE_WIDTH * 1.5, H / 2, 10, H, 0xffffff, 0);

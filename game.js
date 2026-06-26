@@ -103,6 +103,28 @@
     if (stroke) g.strokePath();
   }
 
+  // ─── Pipe drawing helper (standalone — used by MenuScene and GameScene) ───
+  function drawPipeShape(g, x, bottom, height, flipped) {
+    const capH = 22;
+    const capExtra = 6;
+    // Pipe body
+    g.fillStyle(COLORS.pipe, 1);
+    g.fillRect(x, flipped ? 0 : bottom - height, PIPE_WIDTH, height);
+    // Pipe body darker edge
+    g.fillStyle(COLORS.pipeEdge, 1);
+    g.fillRect(x, flipped ? 0 : bottom - height, 4, height);
+    g.fillRect(x + PIPE_WIDTH - 4, flipped ? 0 : bottom - height, 4, height);
+    // Cap
+    g.fillStyle(COLORS.pipeCap, 1);
+    g.fillRect(x - capExtra, flipped ? height : bottom - capH, PIPE_WIDTH + capExtra * 2, capH);
+    // Cap edge
+    g.lineStyle(2, COLORS.pipeCapEdge);
+    g.strokeRect(x - capExtra, flipped ? height : bottom - capH, PIPE_WIDTH + capExtra * 2, capH);
+    // Highlight
+    g.fillStyle(0xffffff, 0.12);
+    g.fillRect(x + 6, flipped ? 0 : bottom - height, 8, height);
+  }
+
   // ─── PreloadScene (minimal — we generate everything in create) ────────────
   class PreloadScene extends Phaser.Scene {
     constructor() { super('Preload'); }
@@ -265,29 +287,8 @@
 
     _drawDecoPipes() {
       const p = this.add.graphics();
-      this._drawPipeShape(p, 340, H - GROUND_HEIGHT - 200, 200, true);
-      this._drawPipeShape(p, 80, H - GROUND_HEIGHT - 120, 120, true);
-    }
-
-    _drawPipeShape(g, x, bottom, height, flipped) {
-      const capH = 22;
-      const capExtra = 6;
-      // Pipe body
-      g.fillStyle(COLORS.pipe, 1);
-      g.fillRect(x, flipped ? 0 : bottom - height, PIPE_WIDTH, height);
-      // Pipe body darker edge
-      g.fillStyle(COLORS.pipeEdge, 1);
-      g.fillRect(x, flipped ? 0 : bottom - height, 4, height);
-      g.fillRect(x + PIPE_WIDTH - 4, flipped ? 0 : bottom - height, 4, height);
-      // Cap
-      g.fillStyle(COLORS.pipeCap, 1);
-      g.fillRect(x - capExtra, flipped ? height : bottom - capH, PIPE_WIDTH + capExtra * 2, capH);
-      // Cap edge
-      g.lineStyle(2, COLORS.pipeCapEdge);
-      g.strokeRect(x - capExtra, flipped ? height : bottom - capH, PIPE_WIDTH + capExtra * 2, capH);
-      // Highlight
-      g.fillStyle(0xffffff, 0.12);
-      g.fillRect(x + 6, flipped ? 0 : bottom - height, 8, height);
+      drawPipeShape(p, 340, H - GROUND_HEIGHT - 200, 200, true);
+      drawPipeShape(p, 80, H - GROUND_HEIGHT - 120, 120, true);
     }
 
     _createBirdGraphic(container, frame) {
@@ -681,7 +682,7 @@
 
           // Top pipe (graphics drawn at local origin, body centered on spawn position)
           const topPipe = this.add.graphics();
-          this._drawPipeShape(topPipe, 0, 0, topPipeHeight, false);
+          drawPipeShape(topPipe, 0, 0, topPipeHeight, false);
           topPipe.x = spawnX;
           topPipe.y = topPipeHeight / 2;
           this.physics.add.existing(topPipe);
@@ -692,7 +693,7 @@
 
           // Bottom pipe
           const bottomPipe = this.add.graphics();
-          this._drawPipeShape(bottomPipe, 0, 0, bottomPipeHeight, true);
+          drawPipeShape(bottomPipe, 0, 0, bottomPipeHeight, true);
           bottomPipe.x = spawnX;
           bottomPipe.y = H - GROUND_HEIGHT - bottomPipeHeight / 2;
           this.physics.add.existing(bottomPipe);

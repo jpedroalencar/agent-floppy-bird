@@ -710,8 +710,8 @@
       bottomPipe.body.updateFromGameObject();
       this.pipes.add(bottomPipe);
 
-      // Score zone – positioned just past the pipes
-      const scoreZone = this.add.rectangle(W + PIPE_WIDTH * 1.5, H / 2, 10, H, 0xffffff, 0);
+      // Score zone – positioned ahead of the pipe so bird scores before collision
+      const scoreZone = this.add.rectangle(spawnX + PIPE_WIDTH + 20, H / 2, 10, H, 0xffffff, 0);
       scoreZone.scored = false;
       this.scoreZones.add(scoreZone);
     }
@@ -857,7 +857,8 @@
     }
 
     create() {
-      // Fade in after the Game scene fade-out transition
+      // Reset any camera effects from the previous scene, then fade in
+      this.cameras.main.resetFX(true);
       this.cameras.main.fadeIn(200, 0, 0, 0);
 
       const cx = W / 2;

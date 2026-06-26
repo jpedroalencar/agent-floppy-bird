@@ -60,6 +60,12 @@
   const GROUND_HEIGHT = 80;
   const BIRD_START_X = 80; // Start position like flappybird.io
   const BIRD_START_Y = H / 2;
+
+  // ─── Difficulty scaling ──────────────────────────────────────────────────────
+  function getPipeSpeed(score) {
+    // Base -140, increase by 15 every 5 points, cap at -280
+    return Math.max(-140 - Math.floor(score / 5) * 15, -280);
+  }
   const COLORS = {
     sky: { top: 0x4dc9f6, bottom: 0x87ceeb },
     grass: 0x5cc04a,
@@ -501,8 +507,9 @@
         }
 
         // Move pipes — move game object position (renders visual) and sync body
+        const curSpeed = getPipeSpeed(this.score);
         this.pipes.getChildren().forEach(pipe => {
-          pipe.x += PIPE_SPEED * dt;
+          pipe.x += curSpeed * dt;
           if (pipe.body) pipe.body.updateFromGameObject();
         });
 
@@ -548,7 +555,7 @@
         if (this.groundGraphics) {
           this.groundGraphics.forEach(g => {
             if (this.isStarted) {
-              g.x += PIPE_SPEED * dt;
+              g.x += curSpeed * dt;
               const wrap = 3 * W; // For 3 tiles, each of width W
               g.x = ((g.x % wrap) + wrap) % wrap - W;
             }

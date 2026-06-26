@@ -212,12 +212,13 @@
       // Show instructions
       const instrY = H - 70;
       
-      this.add.text(cx, instrY + 16, 'github.com/jpedroalencar/agent-floppy-bird', {
+      const linkText = this.add.text(cx, instrY + 22, 'github.com/jpedroalencar/agent-floppy-bird', {
         fontFamily: 'Arial, sans-serif',
         fontSize: '11px',
-        color: '#cccccc',
-        alpha: 0.6
-      }).setOrigin(0.5);
+        color: '#888888',
+        alpha: 0.7
+      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      linkText.on('pointerdown', () => window.open('https://github.com/jpedroalencar/agent-floppy-bird', '_blank'));
     }
 
     _start() {

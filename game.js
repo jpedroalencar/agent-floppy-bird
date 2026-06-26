@@ -365,7 +365,7 @@
       wg.fillEllipse(-2, wingY, 14, 8);
 
       this._wingG = wg;
-      this.birdGraphic.add(wg);
+      this.bird.add(wg);
     }
   }
 
@@ -807,7 +807,7 @@
       wg.fillEllipse(-2, wingY, 14, 8);
 
       this._wingG = wg;
-      this.birdGraphic.add(wg);
+      this.birdContainer.add(wg);
     }
 
     _buildGround() {

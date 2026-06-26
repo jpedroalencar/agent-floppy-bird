@@ -1,14 +1,14 @@
-# 🕊 Floppy Bird
+# Floppy Bird
 
-A complete, polished **Flappy Bird** clone built with **Phaser 3** — all graphics and audio are programmatically generated, zero external assets.
+A complete, polished Flappy Bird clone built with **Phaser 3** — all graphics and audio are programmatically generated, zero external assets.
 
-## 🎮 Play
+## Play
 
-👉 **[https://jpedroalencar.github.io/agent-floppy-bird/](https://jpedroalencar.github.io/agent-floppy-bird/)**
+**[https://jpedroalencar.github.io/agent-floppy-bird/](https://jpedroalencar.github.io/agent-floppy-bird/)**
 
 Press **SPACE**, **click**, or **tap** to flap. Navigate through the pipes, track your score, and earn medals.
 
-## ✨ Features
+## Features
 
 - **Menu screen** with animated bird and instructions
 - **Full gameplay** — gravity, pipe spawning, collision, scoring
@@ -20,7 +20,7 @@ Press **SPACE**, **click**, or **tap** to flap. Navigate through the pipes, trac
 - **Responsive** — fits any screen, works on desktop and mobile (tap)
 - **Zero dependencies** — single HTML + JS, loads Phaser from CDN, no build step
 
-## 🎯 Controls
+## Controls
 
 | Input | Action |
 |-------|--------|
@@ -28,16 +28,16 @@ Press **SPACE**, **click**, or **tap** to flap. Navigate through the pipes, trac
 | Click | Flap / Start / Restart |
 | Tap (mobile) | Flap / Start / Restart |
 
-## 🏆 Medals
+## Medals
 
 | Score | Medal |
 |-------|-------|
-| 5+ | 🥉 Bronze |
-| 15+ | 🥈 Silver |
-| 30+ | 🥇 Gold |
-| 50+ | 💎 Platinum |
+| 5+ | Bronze |
+| 15+ | Silver |
+| 30+ | Gold |
+| 50+ | Platinum |
 
-## 🚀 Local Development
+## Local Development
 
 ```bash
 # Clone the repo
@@ -50,6 +50,6 @@ python3 -m http.server 8080
 # Then open http://localhost:8080
 ```
 
-## 📄 License
+## License
 
 MIT — see [LICENSE](LICENSE)

@@ -219,10 +219,9 @@
       this.input.keyboard.once('keydown-SPACE', () => this._start());
       this.input.once('pointerdown', () => this._start());
 
-      // Show instructions
+      // GitHub link
       const instrY = H - 70;
-      
-      const linkText = this.add.text(cx, instrY + 22, 'github.com/jpedroalencar/agent-floppy-bird', {
+      const linkText = this.add.text(cx, instrY, 'github.com/jpedroalencar/agent-floppy-bird', {
         fontFamily: 'Arial, sans-serif',
         fontSize: '11px',
         color: '#888888',

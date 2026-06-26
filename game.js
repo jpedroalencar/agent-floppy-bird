@@ -853,7 +853,7 @@
     constructor() { super('GameOver'); }
 
     init(data) {
-      this.score = data.score;
+      this.score = data && data.score ? data.score : 0;
     }
 
     create() {
@@ -868,9 +868,12 @@
       const sky = this.add.graphics();
       sky.fillGradientStyle(COLORS.sky.top, COLORS.sky.top, COLORS.sky.bottom, COLORS.sky.bottom, 1);
       sky.fillRect(0, 0, W, H);
+      sky.setDepth(0);
 
       // Ground
       this._drawGround();
+      // Ground sits at depth 1
+      this.children.list.forEach(child => { if(child.type === 'Graphics' && child !== sky) child.setDepth(1); });
 
       // Medals
       this._drawMedal(cx, cy - 150, this.score);
@@ -883,7 +886,7 @@
         color: '#ffffff',
         stroke: '#222222',
         strokeThickness: 6
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setDepth(10);
 
       // Final Score
       this.add.text(cx, cy + 20, 'Score: ' + this.score, {
@@ -892,7 +895,7 @@
         color: '#ffffff',
         stroke: '#222222',
         strokeThickness: 4
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setDepth(10);
 
       // Best Score
       let highScore = parseInt(localStorage.getItem('floppy_highscore') || '0', 10);
@@ -906,7 +909,7 @@
         color: '#ffffff',
         stroke: '#222222',
         strokeThickness: 3
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setDepth(10);
 
       // Play Again button
       const playAgainButton = this.add.text(cx, cy + 140, 'PLAY AGAIN', {
@@ -916,7 +919,7 @@
         backgroundColor: '#4CAF50',
         padding: { x: 20, y: 10 },
         borderRadius: 8
-      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      }).setOrigin(0.5).setDepth(10).setInteractive({ useHandCursor: true });
 
       roundRect(this.add.graphics(), playAgainButton.x - playAgainButton.width / 2 - 20, playAgainButton.y - playAgainButton.height / 2 - 10, playAgainButton.width + 40, playAgainButton.height + 20, 8, 0x4CAF50, 0x388E3C);
 
@@ -955,14 +958,14 @@
         fontSize: '18px',
         fontStyle: 'bold',
         color: '#222222'
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setDepth(10);
 
       // Medal title
       this.add.text(x, y + 40, text, {
         fontFamily: 'Arial, sans-serif',
         fontSize: '16px',
         color: '#ffffff'
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setDepth(10);
 
       SoundEngine.medal();
     }

@@ -374,6 +374,9 @@
     constructor() { super('Game'); }
 
     create() {
+      // Fade in after the MenuScene fade-out transition
+      this.cameras.main.fadeIn(200, 0, 0, 0);
+
       this.score = 0;
       this.isDead = false;
       this.isStarted = false;
@@ -467,7 +470,6 @@
 
     update(time, delta) {
       if (this.isDead) return;
-      console.log('GameScene update:', time, 'started:', this.isStarted, 'y:', this.birdContainer.y.toFixed(1));
 
       const dt = Math.min(delta / 1000, 0.05); // cap at 50ms to prevent physics spikes
 
@@ -514,12 +516,14 @@
         const bhx = 14, bhy = 11;
         const bx = this.birdContainer.x, by = this.birdContainer.y;
         this.pipes.getChildren().forEach(pipe => {
-          // Rect center at (pipe.x, pipe.y), body has the actual dimensions
-          const hw = pipe.body.width / 2;
-          const hh = pipe.body.height / 2;
-          // Check AABB: bird box vs pipe rect (center-origin)
-          if (bx - bhx < pipe.x + hw && bx + bhx > pipe.x - hw &&
-              by - bhy < pipe.y + hh && by + bhy > pipe.y - hh) {
+          // Pipe bodies are top-left origin (Graphics + Arcade physics)
+          // Bird body is center-origin (container)
+          const pLeft = pipe.x;
+          const pRight = pipe.x + pipe.body.width;
+          const pTop = pipe.y;
+          const pBottom = pipe.y + pipe.body.height;
+          if (bx - bhx < pRight && bx + bhx > pLeft &&
+              by - bhy < pBottom && by + bhy > pTop) {
             this._die();
           }
         });
@@ -580,19 +584,19 @@
           bhy * 2
         );
 
-        // Pipe collision boxes (red) — body has the actual dimensions
+        // Pipe collision boxes (red) — body has the actual dimensions (top-left origin)
         this.pipes.getChildren().forEach(pipe => {
           dg.lineStyle(1, 0xff0000, 0.7);
           dg.strokeRect(
-            pipe.x - pipe.body.width / 2,
-            pipe.y - pipe.body.height / 2,
+            pipe.x,
+            pipe.y,
             pipe.body.width,
             pipe.body.height
           );
           dg.fillStyle(0xff0000, 0.15);
           dg.fillRect(
-            pipe.x - pipe.body.width / 2,
-            pipe.y - pipe.body.height / 2,
+            pipe.x,
+            pipe.y,
             pipe.body.width,
             pipe.body.height
           );
@@ -609,7 +613,6 @@
     }
 
     _flap() {
-      console.log('_flap called, isDead:', this.isDead, 'isStarted:', this.isStarted);
       if (this.isDead) return;
 
       if (!this.isStarted) {
@@ -617,7 +620,6 @@
         this.instructionText.destroy();
         this.pipeTimer = PIPE_SPAWN_INTERVAL - 800;
         SoundEngine.swoosh();
-        console.log('_flap: game started');
       }
 
       this.birdVelocity = FLAP_VELOCITY;
@@ -846,6 +848,9 @@
     }
 
     create() {
+      // Fade in after the Game scene fade-out transition
+      this.cameras.main.fadeIn(200, 0, 0, 0);
+
       const cx = W / 2;
       const cy = H / 2;
 

@@ -212,6 +212,12 @@
       // Show instructions
       const instrY = H - 70;
       
+      this.add.text(cx, instrY + 16, 'github.com/jpedroalencar/agent-floppy-bird', {
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '11px',
+        color: '#cccccc',
+        alpha: 0.6
+      }).setOrigin(0.5);
     }
 
     _start() {
@@ -856,22 +862,19 @@
       const cx = W / 2;
       const cy = H / 2;
 
-      // Sky gradient
+      // Sky gradient (clean background)
       const sky = this.add.graphics();
       sky.fillGradientStyle(COLORS.sky.top, COLORS.sky.top, COLORS.sky.bottom, COLORS.sky.bottom, 1);
       sky.fillRect(0, 0, W, H);
 
-      // Hills
-      this._drawHills();
-
-      // Clouds
-      this._drawClouds();
-
       // Ground
       this._drawGround();
 
+      // Medals
+      this._drawMedal(cx, cy - 150, this.score);
+
       // Game Over Text
-      this.add.text(cx, cy - 80, 'GAME OVER', {
+      this.add.text(cx, cy - 60, 'GAME OVER', {
         fontFamily: 'Arial, sans-serif',
         fontSize: '48px',
         fontStyle: 'bold',
@@ -881,7 +884,7 @@
       }).setOrigin(0.5);
 
       // Final Score
-      this.add.text(cx, cy, 'Score: ' + this.score, {
+      this.add.text(cx, cy + 20, 'Score: ' + this.score, {
         fontFamily: 'Arial, sans-serif',
         fontSize: '32px',
         color: '#ffffff',
@@ -895,7 +898,7 @@
         highScore = this.score;
         localStorage.setItem('floppy_highscore', highScore.toString());
       }
-      this.add.text(cx, cy + 50, 'Best: ' + highScore, {
+      this.add.text(cx, cy + 70, 'Best: ' + highScore, {
         fontFamily: 'Arial, sans-serif',
         fontSize: '24px',
         color: '#ffffff',
@@ -904,7 +907,7 @@
       }).setOrigin(0.5);
 
       // Play Again button
-      const playAgainButton = this.add.text(cx, cy + 150, 'PLAY AGAIN', {
+      const playAgainButton = this.add.text(cx, cy + 140, 'PLAY AGAIN', {
         fontFamily: 'Arial, sans-serif',
         fontSize: '28px',
         color: '#ffffff',
@@ -915,7 +918,6 @@
 
       roundRect(this.add.graphics(), playAgainButton.x - playAgainButton.width / 2 - 20, playAgainButton.y - playAgainButton.height / 2 - 10, playAgainButton.width + 40, playAgainButton.height + 20, 8, 0x4CAF50, 0x388E3C);
 
-
       playAgainButton.on('pointerdown', () => {
         SoundEngine.swoosh();
         this.cameras.main.fadeOut(200, 0, 0, 0);
@@ -923,19 +925,6 @@
           this.scene.start('Game');
         });
       });
-
-      // Medals based on score (simplified)
-      this._drawMedal(cx, cy - 120, this.score);
-    }
-
-    _drawHills() {
-      // Re-use MenuScene's _drawHills for consistency
-      new MenuScene()._drawHills.call(this);
-    }
-
-    _drawClouds() {
-      // Re-use MenuScene's _drawClouds for consistency
-      new MenuScene()._drawClouds.call(this);
     }
 
     _drawGround() {

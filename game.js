@@ -66,6 +66,10 @@
     // Base -140, increase by 15 every 5 points, cap at -280
     return Math.max(-140 - Math.floor(score / 5) * 15, -280);
   }
+  function getPipeInterval(speed) {
+    // Keep distance between pipe pairs constant: 210px (140px/s × 1500ms)
+    return Math.round(140 * 1500 / Math.abs(speed));
+  }
   const COLORS = {
     sky: { top: 0x4dc9f6, bottom: 0x87ceeb },
     grass: 0x5cc04a,
@@ -499,15 +503,16 @@
         const wingFrame = Math.floor(time / 100) % 2;
         this._updateWing(wingFrame);
 
-        // Spawn pipes
+        // Spawn pipes — interval scales inversely with speed to keep spacing constant
+        const curSpeed = getPipeSpeed(this.score);
+        const curInterval = getPipeInterval(curSpeed);
         this.pipeTimer += dt * 1000;
-        if (this.pipeTimer >= PIPE_SPAWN_INTERVAL) {
+        if (this.pipeTimer >= curInterval) {
           this._spawnPipePair();
           this.pipeTimer = 0;
         }
 
         // Move pipes — move game object position (renders visual) and sync body
-        const curSpeed = getPipeSpeed(this.score);
         this.pipes.getChildren().forEach(pipe => {
           pipe.x += curSpeed * dt;
           if (pipe.body) pipe.body.updateFromGameObject();
@@ -630,7 +635,8 @@
       if (!this.isStarted) {
         this.isStarted = true;
         this.instructionText.destroy();
-        this.pipeTimer = PIPE_SPAWN_INTERVAL - 800;
+        // First pipe arrives in 800ms (at base speed: 1500 - 800 = 700ms offset)
+        this.pipeTimer = getPipeInterval(getPipeSpeed(0)) - 800;
         SoundEngine.swoosh();
       }
 

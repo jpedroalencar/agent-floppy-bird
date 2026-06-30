@@ -1,6 +1,0 @@
-provider: freellmapi
-model: gpt-4.1
-fallbacks:
-  - gemini-3
-  - flash-preview-glm-4
-  - gpt-oss-120b
